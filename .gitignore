@@ -1,0 +1,9 @@
+.gradle/
+.kotlin/
+build/
+local.properties
+.idea/
+*.iml
+
+# Firebase client config: not a secret, but there's no reason to publish it.
+app/google-services.json

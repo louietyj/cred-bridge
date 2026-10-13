@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ic_key's paths, cropped to x 26..82 for the status bar. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="60"
+    android:viewportHeight="60">
+    <group
+        android:translateX="-24"
+        android:translateY="-24">
+        <path
+            android:fillColor="#FFFFFF"
+            android:fillType="evenOdd"
+            android:pathData="M26,54a12,12 0 1,0 24,0a12,12 0 1,0 -24,0z M32.5,54a5.5,5.5 0 1,0 11,0a5.5,5.5 0 1,0 -11,0z" />
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M48,50h34v8h-34z M70,58h5v8h-5z M77,58h5v6h-5z" />
+    </group>
+</vector>

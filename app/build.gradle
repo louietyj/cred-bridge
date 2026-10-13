@@ -1,0 +1,49 @@
+plugins {
+    id 'com.android.application'
+    id 'com.google.gms.google-services'
+}
+
+android {
+    namespace = 'me.louietyj.credbridge'
+    compileSdk = 37
+
+    defaultConfig {
+        applicationId = 'me.louietyj.credbridge'
+        minSdk = 34
+        targetSdk = 37
+        versionCode = 1
+        versionName = '0.1'
+
+        buildConfigField 'String', 'WORKER_URL', "\"${property('credBridge.workerUrl')}\""
+        // Only request-text tunnels may receive a credential.
+        buildConfigField 'String', 'SUBMIT_HOST_SUFFIX', '".hostc.app"'
+    }
+
+    buildTypes {
+        debug {
+            // Lets the local end-to-end test submit to request-text on 127.0.0.1 via adb reverse.
+            buildConfigField 'boolean', 'ALLOW_LOCAL_SUBMIT', 'true'
+        }
+        release {
+            buildConfigField 'boolean', 'ALLOW_LOCAL_SUBMIT', 'false'
+        }
+    }
+
+    buildFeatures {
+        buildConfig = true
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation platform('com.google.firebase:firebase-bom:35.0.0')
+    implementation 'com.google.firebase:firebase-messaging'
+
+    testImplementation 'junit:junit:4.13.2'
+    // android.jar's org.json is a stub in local unit tests.
+    testImplementation 'org.json:json:20250517'
+}
