@@ -10,6 +10,8 @@ import android.content.Intent;
 final class Notifications {
 
     private static final String CHANNEL = "requests";
+    // The relay's longest request lifetime (TTL_MAX_S).
+    private static final long MAX_TTL_MS = 30 * 60_000;
 
     private Notifications() {}
 
@@ -21,23 +23,34 @@ final class Notifications {
     }
 
     static void show(Context context, Relay.Request r) {
+        notify(context, r.rid(), "Claude wants your " + r.site() + " login", r.reason(),
+                r.expiresAt() - System.currentTimeMillis());
+    }
+
+    /** A request the push could not load: the site and reason are unknown until it is opened. */
+    static void showUnfetched(Context context, String rid) {
+        notify(context, rid, "Claude is asking for a login",
+                "Tap to see which site. It couldn't be loaded in the background.", MAX_TTL_MS);
+    }
+
+    private static void notify(Context context, String rid, String title, String text, long ttlMs) {
         ensureChannel(context);
-        int id = idFor(r.rid());
+        int id = idFor(rid);
         Intent open = new Intent(context, RequestActivity.class)
-                .putExtra(RequestActivity.EXTRA_RID, r.rid())
+                .putExtra(RequestActivity.EXTRA_RID, rid)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         Intent decline = new Intent(context, DeclineReceiver.class)
-                .putExtra(RequestActivity.EXTRA_RID, r.rid());
+                .putExtra(RequestActivity.EXTRA_RID, rid);
         int flags = PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT;
 
         Notification n = new Notification.Builder(context, CHANNEL)
                 .setSmallIcon(R.drawable.ic_notification)
-                .setContentTitle("Claude wants your " + r.site() + " login")
-                .setContentText(r.reason())
-                .setStyle(new Notification.BigTextStyle().bigText(r.reason()))
+                .setContentTitle(title)
+                .setContentText(text)
+                .setStyle(new Notification.BigTextStyle().bigText(text))
                 .setCategory(Notification.CATEGORY_REMINDER)
                 .setAutoCancel(true)
-                .setTimeoutAfter(Math.max(1, r.expiresAt() - System.currentTimeMillis()))
+                .setTimeoutAfter(Math.max(1, ttlMs))
                 .setContentIntent(PendingIntent.getActivity(context, id, open, flags))
                 .addAction(new Notification.Action.Builder(null, "Decline",
                         PendingIntent.getBroadcast(context, id, decline, flags)).build())

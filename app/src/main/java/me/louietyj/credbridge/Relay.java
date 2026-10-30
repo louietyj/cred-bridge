@@ -3,10 +3,13 @@ package me.louietyj.credbridge;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -59,6 +62,7 @@ final class Relay {
         prefs = context.getApplicationContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE);
     }
 
+    /** Only that this phone was paired once; {@link #checkIn} is what proves the relay agrees. */
     boolean isPaired() {
         return prefs.getString(KEY_DEVICE_TOKEN, null) != null;
     }
@@ -76,8 +80,21 @@ final class Relay {
         prefs.edit().putString(KEY_DEVICE_TOKEN, out.optString("k")).apply();
     }
 
-    void updateFcmToken(String fcmToken) throws IOException {
-        call("PUT", "/device", deviceToken(), json("fcm_token", fcmToken));
+    /** Proves the pairing and hands the relay the current FCM token; returns when it was paired (epoch ms). */
+    long checkIn(String fcmToken) throws IOException {
+        return call("PUT", "/device", deviceToken(), json("fcm_token", fcmToken)).optLong("paired");
+    }
+
+    /** The requests still waiting for an answer, newest first. They carry no link: open one to get it. */
+    List<Request> open() throws IOException {
+        JSONArray a = call("GET", "/device/requests", deviceToken(), null).optJSONArray("requests");
+        List<Request> out = new ArrayList<>();
+        for (int i = 0; a != null && i < a.length(); i++) {
+            JSONObject o = a.optJSONObject(i);
+            out.add(new Request(o.optString("rid"), o.optString("site"), o.optString("reason"),
+                    null, o.optLong("expires_at"), o.optString("status")));
+        }
+        return out;
     }
 
     /** {@code opening}: the request screen is showing it, rather than a push being handled. */

@@ -8,10 +8,10 @@
     <application
         android:icon="@mipmap/ic_launcher"
         android:label="Credential Request"
-        android:theme="@android:style/Theme.DeviceDefault.DayNight">
+        android:theme="@style/AppTheme">
 
         <activity
-            android:name=".PairActivity"
+            android:name=".HomeActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -8,11 +8,24 @@ the login to the request-text link Claude opened and posts it there.
 
 The app is labelled "Credential Request". It needs Android 14+.
 
+Opening it checks the pairing with the relay (and hands over the current FCM
+token) and lists the requests still waiting, so a request whose notification
+never came can be answered from there. The pairing box appears only while the
+relay doesn't know the phone.
+
+A push wakes the app with its network still blocked: Android cuts a cached
+app's network and lifts the block a moment after the push arrives. So the
+push handler retries its fetch for a few seconds, and if that still fails it
+posts a plain "Claude is asking for a login" notification; opening that
+fetches it in the foreground.
+
 ## Build
 
 Needs `app/google-services.json` from the `cred-bridge` Firebase project
 (`firebase apps:sdkconfig ANDROID <app id> --project cred-bridge`). The relay
-URL is `credBridge.workerUrl` in `gradle.properties`.
+URL is `credBridge.workerUrl` in `gradle.properties`. Builds must be signed
+with the same debug keystore as the installed app, or Android refuses the
+update and the phone has to re-pair.
 
 ```bash
 ./gradlew installDebug

@@ -19,6 +19,7 @@ import android.view.WindowManager;
 import android.view.autofill.AutofillManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -64,8 +65,11 @@ public class RequestActivity extends Activity {
 
         root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setPadding(dp(24), dp(48), dp(24), dp(24));
-        setContentView(root);
+        root.setPadding(dp(24), dp(24), dp(24), dp(24));
+        FrameLayout frame = new FrameLayout(this);
+        frame.addView(root);
+        setContentView(frame);
+        HomeActivity.padForSystemBars(frame);
         status = text("Loading the request…", 16, false);
         root.addView(status);
 
